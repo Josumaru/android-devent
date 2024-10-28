@@ -11,11 +11,13 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import id.overlogic.devent.R
-import id.overlogic.devent.data.response.ListEventsItem
+import id.overlogic.devent.data.local.entity.EventEntity
+import id.overlogic.devent.data.remote.response.ListEventsItem
 import id.overlogic.devent.databinding.FragmentHomeBinding
 import id.overlogic.devent.ui.home.adapter.FinishedAdapter
 import id.overlogic.devent.ui.home.adapter.UpcomingAdapter
 import id.overlogic.devent.util.SpaceItemDecoration
+import id.overlogic.devent.data.Result
 
 class HomeFragment : Fragment() {
 
@@ -26,11 +28,9 @@ class HomeFragment : Fragment() {
         fun newInstance() = HomeFragment()
     }
 
-    private val viewModel: HomeViewModel by viewModels()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // TODO: Use the ViewModel
+
     }
 
     override fun onCreateView(
@@ -44,22 +44,102 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val upcomingEventLayoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        val upcomingEventLayoutManager =
+            LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         binding.rvUpcoming.layoutManager = upcomingEventLayoutManager
 
-        val finishedEventLayoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+        val finishedEventLayoutManager =
+            LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         binding.rvFinished.layoutManager = finishedEventLayoutManager
-
-        viewModel.listUpcomingEvents.observe(viewLifecycleOwner) { events ->
-            setUpcomingEvent(events)
+        val factory: ViewModelFactory = ViewModelFactory.getInstance(requireActivity())
+        val viewModel: HomeViewModel by viewModels {
+            factory
         }
 
-        viewModel.listFinishedEvents.observe(viewLifecycleOwner) { events ->
-            setFinishedEvent(events)
+
+        viewModel.getUpcomingEvent()?.observe(viewLifecycleOwner) { result ->
+            if (result != null) {
+                when (result) {
+                    is Result.Success -> {
+                        var listItemEvents: List<ListEventsItem> = ArrayList()
+                        result.data.forEach {
+                            listItemEvents += ListEventsItem(
+                                it.summary,
+                                it.mediaCover,
+                                it.registrants,
+                                it.imageLogo,
+                                it.link,
+                                it.description,
+                                it.ownerName,
+                                it.cityName,
+                                it.quota,
+                                it.name,
+                                it.id,
+                                it.beginTime,
+                                it.endTime,
+                                it.category,
+                            )
+                        }
+                        setUpcomingEvent(listItemEvents)
+                        binding.pbUpcoming.visibility = View.GONE
+
+                    }
+
+                    is Result.Error -> {
+                        Toast.makeText(context, result.error, Toast.LENGTH_SHORT).show()
+                    }
+
+                    is Result.Loading -> {
+                        binding.pbUpcoming.visibility = View.VISIBLE
+                    }
+
+                }
+            }
+        }
+
+
+        viewModel.getFinishedEvent()?.observe(viewLifecycleOwner) { result ->
+            if (result != null) {
+                when (result) {
+                    is Result.Success -> {
+                        var listItemEvents: List<ListEventsItem> = ArrayList()
+                        result.data.forEach {
+                            listItemEvents += ListEventsItem(
+                                it.summary,
+                                it.mediaCover,
+                                it.registrants,
+                                it.imageLogo,
+                                it.link,
+                                it.description,
+                                it.ownerName,
+                                it.cityName,
+                                it.quota,
+                                it.name,
+                                it.id,
+                                it.beginTime,
+                                it.endTime,
+                                it.category,
+                            )
+                        }
+                        setFinishedEvent(listItemEvents)
+                        binding.pbFinish.visibility = View.GONE
+
+                    }
+
+                    is Result.Error -> {
+                        Toast.makeText(context, result.error, Toast.LENGTH_SHORT).show()
+                    }
+
+                    is Result.Loading -> {
+                        binding.pbFinish.visibility = View.VISIBLE
+                    }
+
+                }
+            }
         }
     }
 
-    private fun setUpcomingEvent(listeEvent: List<ListEventsItem>, ) {
+    private fun setUpcomingEvent(listeEvent: List<ListEventsItem>) {
         val adapter = UpcomingAdapter()
         adapter.submitList(listeEvent)
         binding.rvUpcoming.adapter = adapter
@@ -67,7 +147,7 @@ class HomeFragment : Fragment() {
 
     private fun setFinishedEvent(listeEvent: List<ListEventsItem>) {
         val adapter = FinishedAdapter()
-        adapter.submitList(listeEvent)
+        adapter.submitList(listeEvent.take(5))
         binding.rvFinished.adapter = adapter
     }
 

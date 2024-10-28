@@ -1,20 +1,20 @@
-package id.overlogic.devent.data.response
+package id.overlogic.devent.data.remote.response
 
 import com.google.gson.annotations.SerializedName
 
-data class EventResponse(
-
-	@field:SerializedName("listEvents")
-	val listEvents: List<ListEventsItem>,
+data class DetailResponse (
 
 	@field:SerializedName("error")
 	val error: Boolean,
 
 	@field:SerializedName("message")
-	val message: String
+	val message: String,
+
+	@field:SerializedName("event")
+	val event: DetailEvent
 )
 
-data class ListEventsItem(
+data class DetailEvent(
 
 	@field:SerializedName("summary")
 	val summary: String,

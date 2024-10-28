@@ -1,4 +1,4 @@
-package id.overlogic.devent.data.retrofit
+package id.overlogic.devent.data.remote.retrofit
 
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor

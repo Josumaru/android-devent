@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     app:cardElevation="0dp"
+    android:id="@+id/cv_event_item"
     android:layout_marginBottom="8dp"
     app:cardCornerRadius="8dp">
 

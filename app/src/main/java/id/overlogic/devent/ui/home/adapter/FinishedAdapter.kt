@@ -1,17 +1,24 @@
 package id.overlogic.devent.ui.home.adapter
 
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import id.overlogic.devent.data.response.ListEventsItem
+import id.overlogic.devent.data.remote.response.ListEventsItem
 import id.overlogic.devent.databinding.ItemEventBinding
+import id.overlogic.devent.ui.detail.DetailActivity
 
 class FinishedAdapter: ListAdapter<ListEventsItem, FinishedAdapter.MyViewHolder>(DIFF_CALLBACK) {
         class MyViewHolder (val binding: ItemEventBinding) : RecyclerView.ViewHolder(binding.root) {
             fun bind(event: ListEventsItem){
+                binding.cvEventItem.setOnClickListener {
+                    val intentDetail = Intent(it.context, DetailActivity::class.java)
+                    intentDetail.putExtra("id", event.id.toString())
+                    it.context.startActivity(intentDetail)
+                }
                 binding.tvTitle.text = event.name
                 binding.tvSubtitle.text = event.summary
                 Glide.with(binding.root.context)
